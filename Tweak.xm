@@ -1,20 +1,19 @@
+/* classes skipped for brevity */
 @interface SBAnimationSettings : NSObject
--(double)duration;
--(void)setDuration:(double)arg1 ;
+@property (assign, nonatomic) CGFloat duration;
 @end
 
 @interface SBWakeAnimationSettings : NSObject
--(SBAnimationSettings *)sleepWallpaperFilterSettings;
--(void)setAwakeWallpaperFilterSettings:(SBAnimationSettings *)arg1;
+@property (nonatomic, retain) SBAnimationSettings *sleepWallpaperFilterSettings;
+@property (nonatomic, retain) SBAnimationSettings *awakeWallpaperFilterSettings;
 @end;
 
 %hook SBScreenWakeAnimationController
-	- (void)_startWakeAnimationsForWaking:(_Bool)arg1 animationSettings:(id)arg2{
-		SBWakeAnimationSettings* aniSettings = arg2;
-		SBAnimationSettings* wallSettings = [aniSettings sleepWallpaperFilterSettings];
-		[wallSettings setDuration: 0.0];
-		[aniSettings setAwakeWallpaperFilterSettings: wallSettings];
-		arg2 = aniSettings;
-		%orig;
-	}
+    - (void)_startWakeAnimationsForWaking:(BOOL)isWaking animationSettings:(SBWakeAnimationSettings *)animationSettings {
+        SBAnimationSettings *wallSettings = animationSettings.sleepWallpaperFilterSettings;
+        wallSettings.duration = 0;
+        animationSettings.awakeWallpaperFilterSettings = wallSettings;
+        
+        %orig;
+    }
 %end
